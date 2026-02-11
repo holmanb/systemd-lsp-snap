@@ -1,0 +1,23 @@
+name: systemd-lsp
+version: 2026.01.17 
+summary: Language Server for systemd unit files
+description: |
+  A Language Server Protocol server for systemd unit files, 
+  providing autocomplete and validation.
+
+grade: stable
+confinement: strict
+base: core24
+
+apps:
+  systemd-lsp:
+    command: bin/systemd-lsp
+
+parts:
+  systemd-lsp:
+    plugin: rust
+    source: https://github.com/JFryy/systemd-lsp.git
+    source-tag: v2026.01.17
+    build-packages:
+      - pkg-config
+      - libssl-dev
