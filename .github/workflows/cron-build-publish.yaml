@@ -21,7 +21,7 @@ jobs:
         run: |
           set -e
           LATEST_TAG=$(curl -s https://api.github.com/repos/${{ env.OWNER }}/${{ env.PROJECT }}/releases/latest | jq -r .tag_name)
-          if "v${{ env.RELEASE }}" = $LATEST_TAG; then
+          if [ "v${{ env.RELEASE }}" = "$LATEST_TAG" ]; then
             echo "run=false" >> $GITHUB_OUTPUT
             echo "no new releases: $LATEST_TAG"
           else
