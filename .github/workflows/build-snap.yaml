@@ -1,12 +1,27 @@
-name: build-snap
+name: Build and publish
 
 on:
-  pull_request:
   push:
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v6
-    - uses: snapcore/action-build@v1
+    - name: Checkout code
+      uses: actions/checkout@v6
+    - name: Build snap
+      uses: snapcore/action-build@v1
+      id: build-snap
+    - name: Install snap
+      run: sudo snap install --dangerous ${{ steps.build-snap.outputs.snap }}
+    - name: Upload snap
+      uses: actions/upload-artifact@v6
+      with:
+        path: ${{ steps.build-snap.outputs.snap }}
+    - name: Publish snap
+      uses: snapcore/action-publish@v1
+      env:
+        SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.STORE_LOGIN }}
+      with:
+        snap: ${{ steps.build-snap.outputs.snap }}
+        release: beta
