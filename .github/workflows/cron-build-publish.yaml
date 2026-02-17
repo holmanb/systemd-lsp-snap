@@ -1,4 +1,4 @@
-name: Watch external release
+name: 'cron: build and publish to edge'
 on:
   schedule:
     - cron: '0 0 * * 0'

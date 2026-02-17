@@ -1,0 +1,17 @@
+name: 'ci: build and install'
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v6
+    - name: Build snap
+      uses: snapcore/action-build@v1
+      id: build-snap
+    - name: Install snap
+      run: sudo snap install --dangerous ${{ steps.build-snap.outputs.snap }}

@@ -1,7 +1,7 @@
-name: Build and publish
+name: 'dispatch: Build and publish to beta'
 
 on:
-  push:
+  workflow_dispatch:
 
 jobs:
   build:
