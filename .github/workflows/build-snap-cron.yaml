@@ -1,0 +1,58 @@
+name: Watch external release
+on:
+  schedule:
+    - cron: '0 0 * * 0'
+  workflow_dispatch:
+
+jobs:
+  check-for-release:
+    runs-on: ubuntu-latest
+    outputs:
+      new_release: ${{ steps.compare.outputs.new_release }}
+      should_run: ${{ steps.eval.outputs.run }}
+      latest_release: ${{ steps.eval.outputs.release }}
+    env:
+      OWNER: JFryy
+      PROJECT: systemd-lsp
+      RELEASE: v2026.01.17
+    steps:
+      - name: Get latest release from $${{ env.OWNER }}/$${{ env.PROJECT }}, previously $${{ env.RELEASE }}.
+        id: get_latest
+        run: |
+          set -e
+          LATEST_TAG=$(curl -s https://api.github.com/repos/${{ env.OWNER }}/${{ env.PROJECT }}/releases/latest | jq -r .tag_name)
+          if "$${{ env.RELEASE }}" = $LATEST_TAG; then
+            echo "run=false" >> $GITHUB_OUTPUT
+            echo "no new releases: $LATEST_TAG"
+          else
+            echo "run=true" >> $GITHUB_OUTPUT
+            echo "new release: $LATEST_TAG"
+          fi
+          echo "release=$LATEST_TAG" >> $GITHUB_OUTPUT
+            
+  build-and-publish:
+    if: needs.check-logic.outputs.should_run == 'true'
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v6
+    - name: Build snap
+      uses: snapcore/action-build@v1
+      id: build-snap
+    - name: Install snap
+      run: sudo snap install --dangerous ${{ steps.build-snap.outputs.snap }}
+    - name: Upload snap
+      uses: actions/upload-artifact@v6
+      with:
+        path: ${{ steps.build-snap.outputs.snap }}
+    - name: Publish snap
+      uses: snapcore/action-publish@v1
+      env:
+        SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAPCRAFT_LOGIN }}
+      with:
+        snap: ${{ steps.build-snap.outputs.snap }}
+        release: edge
+    - name: Trigger inbox message
+      run: |
+        echo "published to edge"
+        echo "new release is available: ${{ needs.check-for-release.outputs.latest_release }}"
