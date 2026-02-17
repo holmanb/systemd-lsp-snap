@@ -8,20 +8,20 @@ jobs:
   check-for-release:
     runs-on: ubuntu-latest
     outputs:
-      new_release: ${{ steps.compare.outputs.new_release }}
       should_run: ${{ steps.eval.outputs.run }}
-      latest_release: ${{ steps.eval.outputs.release }}
+      new_release: ${{ steps.eval.outputs.release }}
+      old_release: ${{ env.RELEASE }}
     env:
       OWNER: JFryy
       PROJECT: systemd-lsp
-      RELEASE: v2026.01.17
+      RELEASE: 2026.01.17
     steps:
       - name: Get latest release from ${{ env.OWNER }}/${{ env.PROJECT }}, previously ${{ env.RELEASE }}.
         id: get_latest
         run: |
           set -e
           LATEST_TAG=$(curl -s https://api.github.com/repos/${{ env.OWNER }}/${{ env.PROJECT }}/releases/latest | jq -r .tag_name)
-          if "${{ env.RELEASE }}" = $LATEST_TAG; then
+          if "v${{ env.RELEASE }}" = $LATEST_TAG; then
             echo "run=false" >> $GITHUB_OUTPUT
             echo "no new releases: $LATEST_TAG"
           else
@@ -36,6 +36,9 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v6
+    - name: Update version
+      run: |
+        sed -i "s/${{needs.check-logic.outputs.old_release}}/${{needs.check-logic.outputs.new_release}}/g" snapcraft.yaml
     - name: Build snap
       uses: snapcore/action-build@v1
       id: build-snap
@@ -55,4 +58,4 @@ jobs:
     - name: Trigger inbox message
       run: |
         echo "published to edge"
-        echo "new release is available: ${{ needs.check-for-release.outputs.latest_release }}"
+        echo "new release is available: ${{ needs.check-for-release.outputs.new_release }}"
