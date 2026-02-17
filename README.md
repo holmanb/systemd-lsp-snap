@@ -12,6 +12,7 @@
 sudo snap install systemd-lsp
 ```
 
-See the [upstream project here](https://github.com/JFryy/systemd-lsp).
-
 ([Don't have snapd installed?](https://snapcraft.io/docs/core/install))
+
+See the [upstream project [here]](https://github.com/JFryy/systemd-lsp).
+
