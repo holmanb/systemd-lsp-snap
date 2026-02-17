@@ -16,12 +16,12 @@ jobs:
       PROJECT: systemd-lsp
       RELEASE: v2026.01.17
     steps:
-      - name: Get latest release from $${{ env.OWNER }}/$${{ env.PROJECT }}, previously $${{ env.RELEASE }}.
+      - name: Get latest release from ${{ env.OWNER }}/${{ env.PROJECT }}, previously ${{ env.RELEASE }}.
         id: get_latest
         run: |
           set -e
           LATEST_TAG=$(curl -s https://api.github.com/repos/${{ env.OWNER }}/${{ env.PROJECT }}/releases/latest | jq -r .tag_name)
-          if "$${{ env.RELEASE }}" = $LATEST_TAG; then
+          if "${{ env.RELEASE }}" = $LATEST_TAG; then
             echo "run=false" >> $GITHUB_OUTPUT
             echo "no new releases: $LATEST_TAG"
           else
