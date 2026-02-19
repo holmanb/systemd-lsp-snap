@@ -1,4 +1,4 @@
-name: 'dispatch: Build and publish to beta'
+name: 'dispatch: Build and publish to candidate'
 
 on:
   workflow_dispatch:
